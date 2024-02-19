@@ -8,12 +8,18 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
-import { jwtConstants } from './constants';
-import { IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { jwtConstants } from '../modules/auth/constants';
+import { IS_PUBLIC_KEY } from '../modules/auth/decorators/public.decorator';
+// import { InjectModel } from '@nestjs/mongoose';
+// import { Model } from 'mongoose';
+// import { User } from 'src/modules/user/interfaces/user.interface';
+import { UserService } from 'src/modules/user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
+    // @InjectModel('USER_MODEL') private readonly userModel: Model<User>,
+    private userService: UserService,
     private jwtService: JwtService,
     private reflector: Reflector,
   ) {}
@@ -37,9 +43,9 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      request['user'] = payload;
+      const dbUser = await this.userService.findById(payload?.sub);
+
+      request['user'] = dbUser;
     } catch {
       throw new UnauthorizedException();
     }
@@ -47,7 +53,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    const [type, token] = request.headers.authorization.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
 }

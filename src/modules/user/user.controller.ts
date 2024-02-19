@@ -8,9 +8,14 @@ import {
   Res,
   Body,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './interfaces/user.interface';
+import { AuthGuard } from '../../gaurds/auth.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { ROLES } from 'src/constants/role.enum';
+import { RolesGuard } from 'src/gaurds/role.guard';
 
 @Controller('user')
 export class UserController {
@@ -18,6 +23,8 @@ export class UserController {
 
   // GET ONE USER
   @Get(':id')
+  @Roles([ROLES.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
   async getOne(@Req() request: any, @Res() response: any): Promise<any> {
     try {
       const dbUser = await this.userService.getOne();
@@ -30,6 +37,8 @@ export class UserController {
 
   // GET ALL USERS
   @Get()
+  @Roles([ROLES.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
   async getAll(@Req() request: any, @Res() response: any): Promise<any> {
     try {
       const pageNo = request.query.pageNo;
@@ -43,6 +52,8 @@ export class UserController {
 
   // CREATE USER
   @Post()
+  @Roles([ROLES.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
   async create(
     @Body() user: User,
     @Req() request: any,
@@ -60,6 +71,8 @@ export class UserController {
 
   // UPDATE USER
   @Put(':id')
+  @Roles([ROLES.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
   async edit(
     @Req() request: any,
     @Res() response: any,
@@ -77,6 +90,8 @@ export class UserController {
 
   // DELETE USER
   @Delete(':id')
+  @Roles([ROLES.ADMIN])
+  @UseGuards(AuthGuard, RolesGuard)
   async delete(@Req() request: any, @Res() response: any): Promise<any> {
     try {
       const id = request.params.id;

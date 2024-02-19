@@ -98,7 +98,7 @@ export class UserService {
     try {
       await this.userModel.deleteMany({});
 
-      for (let n = 0; n < 1000; n++) {
+      for (let n = 0; n < 10000; n++) {
         if (n > 0) {
           data.push(normalUserSeedData(n));
         } else {
