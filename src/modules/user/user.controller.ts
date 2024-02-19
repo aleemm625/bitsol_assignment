@@ -1,5 +1,16 @@
-import { Delete, Controller, Get, Post, Put, Req, Res } from '@nestjs/common';
+import {
+  Delete,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  Res,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { UserService } from './user.service';
+import { User } from './interfaces/user.interface';
 
 @Controller('user')
 export class UserController {
@@ -21,7 +32,8 @@ export class UserController {
   @Get()
   async getAll(@Req() request: any, @Res() response: any): Promise<any> {
     try {
-      const dbUser = await this.userService.getAll();
+      const pageNo = request.query.pageNo;
+      const dbUser = await this.userService.getAll(pageNo);
 
       return response.status(200).json(dbUser);
     } catch (error) {
@@ -31,9 +43,14 @@ export class UserController {
 
   // CREATE USER
   @Post()
-  async create(@Req() request: any, @Res() response: any): Promise<any> {
+  async create(
+    @Body() user: User,
+    @Req() request: any,
+    @Res() response: any,
+  ): Promise<any> {
     try {
-      const dbUser = await this.userService.create();
+      // console.log(user);
+      const dbUser = await this.userService.create(user);
 
       return response.status(200).json(dbUser);
     } catch (error) {
@@ -42,10 +59,15 @@ export class UserController {
   }
 
   // UPDATE USER
-  @Put()
-  async edit(@Req() request: any, @Res() response: any): Promise<any> {
+  @Put(':id')
+  async edit(
+    @Req() request: any,
+    @Res() response: any,
+    @Body() user: User | any,
+    @Param('id') id: string,
+  ): Promise<any> {
     try {
-      const dbUser = await this.userService.edit();
+      const dbUser = await this.userService.edit(id, user);
 
       return response.status(200).json(dbUser);
     } catch (error) {
@@ -54,10 +76,11 @@ export class UserController {
   }
 
   // DELETE USER
-  @Delete()
+  @Delete(':id')
   async delete(@Req() request: any, @Res() response: any): Promise<any> {
     try {
-      const dbUser = await this.userService.delete();
+      const id = request.params.id;
+      const dbUser = await this.userService.delete(id);
 
       return response.status(200).json(dbUser);
     } catch (error) {
